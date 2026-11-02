@@ -197,6 +197,11 @@ def load_platform_module(platform: str):
         "is_invalid_sensor_value",
         const_values["is_invalid_sensor_value"],
     )
+    setattr(
+        const,
+        "Z120_COMPOSITE_SETTING_SWITCHES",
+        const_values["Z120_COMPOSITE_SETTING_SWITCHES"],
+    )
     sys.modules["custom_components.air352.const"] = const
 
     if platform == "select":

@@ -13,7 +13,7 @@ class SplitControlTranslationTests(unittest.TestCase):
         manifest = json.loads(
             (REPO_ROOT / "custom_components" / "air352" / "manifest.json").read_text()
         )
-        self.assertEqual(manifest["version"], "5.1.0")
+        self.assertEqual(manifest["version"], "5.1.1")
 
     def test_all_translation_files_define_mode_and_manual_gear_selects(self):
         cases = {

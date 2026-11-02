@@ -62,6 +62,30 @@ class ActiveRefreshApiTests(unittest.IsolatedAsyncioTestCase):
         )
 
 
+    async def test_z120_settings_report_uses_official_query_property(self) -> None:
+        client = object.__new__(Air352ApiClient)
+        client.set_device_properties = AsyncMock()
+
+        await client.request_z120_settings_report("iot-z120")
+
+        client.set_device_properties.assert_awaited_once_with(
+            "iot-z120",
+            {"SetResearchAll": 1},
+        )
+    def test_352_headers_include_custom_user_agent_only_when_configured(self) -> None:
+        default_client = Air352ApiClient(object(), "user", "pass")
+        self.assertNotIn("User-Agent", default_client._352_headers("/api/v1/enduser/login"))
+
+        custom_client = Air352ApiClient(
+            object(),
+            "user",
+            "pass",
+            user_agent="CustomClient/1.0",
+        )
+        headers = custom_client._352_headers("/api/v1/enduser/login")
+        self.assertEqual(headers.get("User-Agent"), "CustomClient/1.0")
+
+
 class ActiveRefreshCoordinatorTests(unittest.IsolatedAsyncioTestCase):
     def _coordinator(self, *, report_error: Exception | None = None):
         coordinator = object.__new__(Air352Coordinator)

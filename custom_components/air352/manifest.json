@@ -3,8 +3,8 @@
   "name": "352 Air",
   "codeowners": ["@geminiwen"],
   "config_flow": true,
-  "documentation": "https://github.com/wangty163/hass-air352",
+  "documentation": "https://github.com/jackjinke/hass-air352",
   "iot_class": "cloud_push",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "requirements": ["paho-mqtt==2.1.0"]
 }
