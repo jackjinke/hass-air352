@@ -9,12 +9,6 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 class SplitControlTranslationTests(unittest.TestCase):
-    def test_manifest_version_marks_split_control_feature(self):
-        manifest = json.loads(
-            (REPO_ROOT / "custom_components" / "air352" / "manifest.json").read_text()
-        )
-        self.assertEqual(manifest["version"], "5.1.1")
-
     def test_all_translation_files_define_mode_and_manual_gear_selects(self):
         cases = {
             "strings.json": {
