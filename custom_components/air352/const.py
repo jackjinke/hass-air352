@@ -35,12 +35,12 @@ Z120_REFRESH_VALUE = "1"
 
 Z120_SETTINGS_REFRESH_PROPERTY = "SetResearchAll"
 Z120_SETTINGS_REFRESH_VALUE = 1
-Z120_COMPOSITE_SETTING_SWITCHES = frozenset(
-    {
-        "StandbySensorSwitch",
-        "SmartModeSwitch",
-        "MicrowaveSensor",
-    }
+# The Z120 settings panel writes these nine properties as one frame, so every
+# write must carry device-reported values for all of them.
+Z120_COMPOSITE_SETTING_SWITCHES = (
+    "StandbySensorSwitch",
+    "SmartModeSwitch",
+    "MicrowaveSensor",
 )
 Z120_MODEL_PATTERN = re.compile(r"(?<![A-Z0-9])Z120(?![A-Z0-9])", re.IGNORECASE)
 
@@ -51,6 +51,14 @@ Z120_INVALID_SENSOR_VALUES: dict[str, tuple[Any, ...]] = {
     "CurrentTemperature": (327.6, 327.67, "327.6", "327.67"),
     "RelativeHumidity": (327.6, 327.67, "327.6", "327.67"),
 }
+Z120_COMPOSITE_SETTING_THRESHOLDS = (
+    "PM25ThresholdOn",
+    "PM25ThresholdOff",
+    "HCHOThresholdOn",
+    "HCHOThresholdOff",
+    "TVOCThresholdOn",
+    "TVOCThresholdOff",
+)
 
 CATEGORY_KEY_ALIASES = {
     DEVICE_TYPE_AIR.lower(): DEVICE_TYPE_AIR,
@@ -101,3 +109,8 @@ def is_invalid_sensor_value(
         product_key == Z120_PRODUCT_KEY
         and value in Z120_INVALID_SENSOR_VALUES.get(property_key, ())
     )
+
+
+def configured_user_agent(entry) -> str:
+    """Return the entry's User-Agent; a saved options value, even empty, wins."""
+    return entry.options.get(CONF_USER_AGENT, entry.data.get(CONF_USER_AGENT, ""))

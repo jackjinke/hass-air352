@@ -202,6 +202,11 @@ def load_platform_module(platform: str):
         "Z120_COMPOSITE_SETTING_SWITCHES",
         const_values["Z120_COMPOSITE_SETTING_SWITCHES"],
     )
+    setattr(
+        const,
+        "Z120_COMPOSITE_SETTING_THRESHOLDS",
+        const_values["Z120_COMPOSITE_SETTING_THRESHOLDS"],
+    )
     sys.modules["custom_components.air352.const"] = const
 
     if platform == "select":

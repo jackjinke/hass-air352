@@ -61,7 +61,6 @@ class ActiveRefreshApiTests(unittest.IsolatedAsyncioTestCase):
             {"ResearchAllProperty": "1"},
         )
 
-
     async def test_z120_settings_report_uses_official_query_property(self) -> None:
         client = object.__new__(Air352ApiClient)
         client.set_device_properties = AsyncMock()
@@ -72,6 +71,7 @@ class ActiveRefreshApiTests(unittest.IsolatedAsyncioTestCase):
             "iot-z120",
             {"SetResearchAll": 1},
         )
+
     def test_352_headers_include_custom_user_agent_only_when_configured(self) -> None:
         default_client = Air352ApiClient(object(), "user", "pass")
         self.assertNotIn("User-Agent", default_client._352_headers("/api/v1/enduser/login"))
@@ -172,6 +172,35 @@ class ActiveRefreshCoordinatorTests(unittest.IsolatedAsyncioTestCase):
             "iot-z120"
         )
         sleep.assert_awaited_once_with(ACTIVE_PROPERTY_REFRESH_SETTLE_SECONDS)
+    async def test_settings_query_reads_cloud_after_device_reports(self) -> None:
+        coordinator = self._coordinator()
+        calls = []
+        coordinator.api.request_z120_settings_report = AsyncMock(
+            side_effect=lambda iot_id: calls.append("report")
+        )
+        coordinator.api.get_device_properties = AsyncMock(
+            side_effect=lambda iot_id: calls.append("read")
+            or {"PM25ThresholdOn": {"value": 35, "time": 5_000}}
+        )
+        coordinator._property_state.merge_device(
+            "iot-z120",
+            {
+                "MicrowaveSensor": {"value": 1, "time": 1_000},
+                "PM25ThresholdOn": {"value": 10, "time": 1_000},
+            },
+            source="rest",
+        )
+        coordinator.async_set_updated_data = Mock()
+        with patch(
+            "air352.coordinator.asyncio.sleep",
+            new=AsyncMock(side_effect=lambda seconds: calls.append("settle")),
+        ):
+            props = await coordinator.async_query_z120_settings("iot-z120")
+
+        self.assertEqual(calls, ["report", "settle", "read"])
+        self.assertEqual(props["PM25ThresholdOn"]["value"], 35)
+        self.assertEqual(props["MicrowaveSensor"]["value"], 1)
+        coordinator.async_set_updated_data.assert_called_once()
 
 
 if __name__ == "__main__":
